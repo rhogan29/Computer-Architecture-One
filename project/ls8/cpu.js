@@ -53,10 +53,41 @@ class CPU {
      * op can be: ADD SUB MUL DIV INC DEC CMP
      */
     alu(op, regA, regB) {
+        const MUL = '10101010';
         switch (op) {
+            case 'ADD':
+                // !!! IMPLEMENT ME
+                regA = regA + regB
+                return;
+            case 'SUB':
+                // !!! IMPLEMENT ME
+                regA = regA - regB
+                return;
             case 'MUL':
                 // !!! IMPLEMENT ME
-                break;
+                regA = regA * regB
+                return;
+            case 'DIV':
+                // !!! IMPLEMENT ME
+                regA = regA / regB
+                return;
+            case 'INC':
+                // !!! IMPLEMENT ME
+                return this.reg + 1;
+            case 'DEC':
+                // !!! IMPLEMENT ME
+                return this.reg - 1;
+            case 'CMP':
+                // !!! IMPLEMENT ME
+                if(regA === regB) {
+                    this.reg.poke('00000LGE', 'E')
+                } else if(regA > regB) {
+                    this.reg.poke('00000LGE', 'G')
+                } else {
+                    this.reg.poke('00000LGE', 'L')
+                }
+            case 'HLT':
+            this.stopClock();
         }
     }
 
@@ -70,6 +101,7 @@ class CPU {
         // right now.)
 
         // !!! IMPLEMENT ME
+        const IR = this.ram.read(this.PC);
 
         // Debugging output
         //console.log(`${this.PC}: ${IR.toString(2)}`);
@@ -78,6 +110,8 @@ class CPU {
         // needs them.
 
         // !!! IMPLEMENT ME
+        const operandA = this.ram.read(this.PC + 1);
+        const operandB = this.ram.read(this.PC + 2);
 
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
