@@ -2,6 +2,11 @@
  * LS-8 v2.0 emulator skeleton code
  */
 
+const LDI = 0b10011001;
+const PRN = 0b01000011;
+const HLT = 0b00000001;
+const MUL = 0b10101010;
+
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
@@ -12,11 +17,11 @@ class CPU {
      */
     constructor(ram) {
         this.ram = ram;
-
+        //fills an array with 0s, 8  length because its 8 registers. Holds our registers
         this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
         
         // Special-purpose registers
-        this.PC = 0; // Program Counter
+        this.PC = 0; // Program Counter // keeps track of where we are
     }
     
     /**
@@ -53,41 +58,24 @@ class CPU {
      * op can be: ADD SUB MUL DIV INC DEC CMP
      */
     alu(op, regA, regB) {
-        const MUL = '10101010';
         switch (op) {
-            case 'ADD':
-                // !!! IMPLEMENT ME
-                regA = regA + regB
-                return;
-            case 'SUB':
-                // !!! IMPLEMENT ME
-                regA = regA - regB
-                return;
-            case 'MUL':
-                // !!! IMPLEMENT ME
-                regA = regA * regB
-                return;
-            case 'DIV':
-                // !!! IMPLEMENT ME
-                regA = regA / regB
-                return;
-            case 'INC':
-                // !!! IMPLEMENT ME
-                return this.reg + 1;
-            case 'DEC':
-                // !!! IMPLEMENT ME
-                return this.reg - 1;
-            case 'CMP':
-                // !!! IMPLEMENT ME
-                if(regA === regB) {
-                    this.reg.poke('00000LGE', 'E')
-                } else if(regA > regB) {
-                    this.reg.poke('00000LGE', 'G')
-                } else {
-                    this.reg.poke('00000LGE', 'L')
-                }
-            case 'HLT':
-            this.stopClock();
+            case MUL:
+                this.reg[regA] = this.reg[regA] * this.reg[regB]; 
+                this.PC += 3; 
+                break;
+            case LDI: // LDI
+                this.reg[regA] = regB; 
+                this.PC += 3; 
+                break;
+            case PRN: // PRN
+                console.log(this.reg[regA])
+                this.PC += 2; 
+                break;
+            case HLT: // HLT
+                this.stopClock()
+                break;
+            default:
+                console.log(`Unrecognized instruction ${op.toString(2)}`)
         }
     }
 
@@ -99,9 +87,9 @@ class CPU {
         // from the memory address pointed to by the PC. (I.e. the PC holds the
         // index into memory of the instruction that's about to be executed
         // right now.)
+        const IR = this.ram.read(this.PC);
 
         // !!! IMPLEMENT ME
-        const IR = this.ram.read(this.PC);
 
         // Debugging output
         //console.log(`${this.PC}: ${IR.toString(2)}`);
@@ -109,12 +97,37 @@ class CPU {
         // Get the two bytes in memory _after_ the PC in case the instruction
         // needs them.
 
-        // !!! IMPLEMENT ME
         const operandA = this.ram.read(this.PC + 1);
         const operandB = this.ram.read(this.PC + 2);
 
+        // !!! IMPLEMENT ME
+
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
+
+        switch(IR) {
+            case LDI: // LDI
+                // set the value in the register
+                this.reg[operandA] = operandB;
+                this.PC += 3; // Next instruction
+                break;
+            case PRN: // PRN
+                console.log(this.reg[operandA]);
+                this.PC += 2;
+                break;
+            case HLT:
+                this.stopClock();
+                this.PC += 2;
+                break;
+            case MUL:
+                this.reg[operandA] = this.reg[operandA] * this.reg[operandB];
+                this.PC += 3;
+                break;
+            default: 
+                console.log('Unknown instruction: ' + IR.toString(2));
+                this.stopClock();
+                return;
+        }
 
         // !!! IMPLEMENT ME
 
