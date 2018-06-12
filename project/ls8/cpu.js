@@ -126,7 +126,7 @@ class CPU {
             default: 
                 console.log('Unknown instruction: ' + IR.toString(2));
                 this.stopClock();
-                return;
+                return; // base steps completed
         }
 
         // !!! IMPLEMENT ME
